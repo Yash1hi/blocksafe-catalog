@@ -1,10 +1,44 @@
 
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { calculateStats } from "@/lib/data";
-import { Shield, AlertTriangle, Check, AlertCircle, Activity } from "lucide-react";
+import { calculateStatsFromDb } from "@/lib/supabase-service";
+import { Shield, AlertTriangle, Check, AlertCircle, Activity, Loader2 } from "lucide-react";
 
 export function DashboardStats() {
-  const stats = calculateStats();
+  const { data: stats, isLoading, error } = useQuery({
+    queryKey: ['vulnerability-stats'],
+    queryFn: calculateStatsFromDb
+  });
+  
+  if (isLoading) {
+    return (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {[...Array(4)].map((_, i) => (
+          <Card key={i} className="flex items-center justify-center min-h-[120px]">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </Card>
+        ))}
+      </div>
+    );
+  }
+  
+  if (error || !stats) {
+    return (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {[...Array(4)].map((_, i) => (
+          <Card key={i}>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Error Loading Stats</CardTitle>
+              <AlertCircle className="h-4 w-4 text-blocksafe-danger" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">--</div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
   
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

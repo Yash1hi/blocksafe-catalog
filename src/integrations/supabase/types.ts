@@ -9,7 +9,54 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      vulnerabilities: {
+        Row: {
+          attack_vectors: string[]
+          auditor: string
+          blockchains: string[]
+          description: string
+          discovery_date: string
+          exploit_code: string | null
+          id: string
+          impact: string
+          mitigation: string | null
+          name: string
+          reference_links: string[] | null
+          severity: string
+          status: string
+        }
+        Insert: {
+          attack_vectors: string[]
+          auditor: string
+          blockchains: string[]
+          description: string
+          discovery_date: string
+          exploit_code?: string | null
+          id: string
+          impact: string
+          mitigation?: string | null
+          name: string
+          reference_links?: string[] | null
+          severity: string
+          status: string
+        }
+        Update: {
+          attack_vectors?: string[]
+          auditor?: string
+          blockchains?: string[]
+          description?: string
+          discovery_date?: string
+          exploit_code?: string | null
+          id?: string
+          impact?: string
+          mitigation?: string | null
+          name?: string
+          reference_links?: string[] | null
+          severity?: string
+          status?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -1,9 +1,10 @@
 
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { CalendarIcon, Plus, Trash } from "lucide-react";
+import { CalendarIcon, Plus, Trash, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { VulnerabilityLevel } from "@/lib/data";
+import { submitVulnerability } from "@/lib/supabase-service";
 
 const formSchema = z.object({
   name: z.string().min(5, {
@@ -79,38 +81,45 @@ export function SubmissionForm() {
       references: [""],
     },
   });
+  
+  const mutation = useMutation({
+    mutationFn: (values: FormValues) => {
+      const filteredBlockchains = blockchains.filter(b => b.trim() !== "");
+      const filteredAttackVectors = attackVectors.filter(a => a.trim() !== "");
+      const filteredReferences = references.filter(r => r.trim() !== "");
+      
+      if (filteredBlockchains.length === 0) {
+        throw new Error("Please add at least one blockchain");
+      }
+      
+      if (filteredAttackVectors.length === 0) {
+        throw new Error("Please add at least one attack vector");
+      }
+      
+      return submitVulnerability({
+        ...values,
+        discoveryDate: format(values.discoveryDate, 'yyyy-MM-dd'),
+        blockchains: filteredBlockchains,
+        attackVectors: filteredAttackVectors,
+        references: filteredReferences,
+      });
+    },
+    onSuccess: () => {
+      toast.success("Vulnerability submitted successfully!");
+      
+      // Reset form
+      form.reset();
+      setBlockchains([""]);
+      setAttackVectors([""]);
+      setReferences([""]);
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to submit vulnerability.");
+    }
+  });
 
   function onSubmit(values: FormValues) {
-    // Include the array fields that aren't directly handled by the form schema
-    const filteredBlockchains = blockchains.filter(b => b.trim() !== "");
-    const filteredAttackVectors = attackVectors.filter(a => a.trim() !== "");
-    const filteredReferences = references.filter(r => r.trim() !== "");
-    
-    if (filteredBlockchains.length === 0) {
-      toast.error("Please add at least one blockchain");
-      return;
-    }
-    
-    if (filteredAttackVectors.length === 0) {
-      toast.error("Please add at least one attack vector");
-      return;
-    }
-
-    const submission = {
-      ...values,
-      blockchains: filteredBlockchains,
-      attackVectors: filteredAttackVectors,
-      references: filteredReferences,
-    };
-
-    console.log(submission);
-    toast.success("Vulnerability submitted successfully!");
-    
-    // Reset form
-    form.reset();
-    setBlockchains([""]);
-    setAttackVectors([""]);
-    setReferences([""]);
+    mutation.mutate(values);
   }
 
   const handleAddItem = (listSetter: React.Dispatch<React.SetStateAction<string[]>>, list: string[]) => {
@@ -403,8 +412,16 @@ export function SubmissionForm() {
         <Button 
           type="submit" 
           className="w-full bg-blocksafe-teal text-blocksafe-dark hover:bg-blocksafe-teal/80"
+          disabled={mutation.isPending}
         >
-          Submit Vulnerability
+          {mutation.isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Submitting...
+            </>
+          ) : (
+            "Submit Vulnerability"
+          )}
         </Button>
       </form>
     </Form>
