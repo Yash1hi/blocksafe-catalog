@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { CalendarIcon, Plus, Trash, Loader2 } from "lucide-react";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -65,6 +65,7 @@ export function SubmissionForm() {
   const [blockchains, setBlockchains] = useState<string[]>([""]);
   const [attackVectors, setAttackVectors] = useState<string[]>([""]);
   const [references, setReferences] = useState<string[]>([""]);
+  const [dateInputValue, setDateInputValue] = useState<string>("");
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -102,6 +103,12 @@ export function SubmissionForm() {
         blockchains: filteredBlockchains,
         attackVectors: filteredAttackVectors,
         references: filteredReferences,
+        name: values.name,
+        description: values.description,
+        severity: values.severity,
+        auditor: values.auditor,
+        status: values.status,
+        impact: values.impact,
       });
     },
     onSuccess: () => {
@@ -112,6 +119,7 @@ export function SubmissionForm() {
       setBlockchains([""]);
       setAttackVectors([""]);
       setReferences([""]);
+      setDateInputValue("");
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to submit vulnerability.");
@@ -147,6 +155,27 @@ export function SubmissionForm() {
     const newList = [...list];
     newList[index] = value;
     listSetter(newList);
+  };
+
+  // Handle manual date input
+  const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setDateInputValue(value);
+    
+    try {
+      // Try to parse the date string (yyyy-MM-dd format)
+      if (value && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        const parsedDate = parse(value, 'yyyy-MM-dd', new Date());
+        
+        if (!isNaN(parsedDate.getTime())) {
+          form.setValue('discoveryDate', parsedDate);
+          return;
+        }
+      }
+    } catch (error) {
+      // If parsing fails, don't update the form value
+      console.log("Invalid date format:", error);
+    }
   };
 
   return (
@@ -218,37 +247,47 @@ export function SubmissionForm() {
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>Discovery Date</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "PPP")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={(date) =>
-                        date > new Date() || date < new Date("2000-01-01")
-                      }
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
+                <div className="flex flex-col space-y-2">
+                  <Input
+                    type="date"
+                    value={dateInputValue || (field.value ? format(field.value, 'yyyy-MM-dd') : '')}
+                    onChange={handleDateInputChange}
+                    className="mb-2"
+                  />
+                  <div className="flex items-center">
+                    <span className="text-sm text-muted-foreground mr-2">Or select from calendar:</span>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            size="icon"
+                            type="button"
+                          >
+                            <CalendarIcon className="h-4 w-4" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={(date) => {
+                            field.onChange(date);
+                            if (date) {
+                              setDateInputValue(format(date, 'yyyy-MM-dd'));
+                            }
+                          }}
+                          disabled={(date) =>
+                            date > new Date() || date < new Date("2000-01-01")
+                          }
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
                 <FormMessage />
               </FormItem>
             )}

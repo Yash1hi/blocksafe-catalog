@@ -19,10 +19,13 @@ export type DbVulnerability = {
   mitigation?: string;
 };
 
+// Database table name
+const TABLE_NAME = 'vulnerabilities';
+
 // Fetch all vulnerabilities
 export async function fetchVulnerabilities(): Promise<Vulnerability[]> {
   const { data, error } = await supabase
-    .from('vulnerabilities')
+    .from(TABLE_NAME)
     .select('*');
 
   if (error) {
@@ -51,7 +54,7 @@ export async function fetchVulnerabilities(): Promise<Vulnerability[]> {
 // Fetch a single vulnerability by ID
 export async function fetchVulnerabilityById(id: string): Promise<Vulnerability | null> {
   const { data, error } = await supabase
-    .from('vulnerabilities')
+    .from(TABLE_NAME)
     .select('*')
     .eq('id', id)
     .single();
@@ -93,7 +96,7 @@ export async function submitVulnerability(vulnerability: Omit<Vulnerability, 'id
   
   // Get count of vulnerabilities to determine the next ID
   const { count, error: countError } = await supabase
-    .from('vulnerabilities')
+    .from(TABLE_NAME)
     .select('*', { count: 'exact', head: true });
   
   if (countError) {
@@ -123,7 +126,7 @@ export async function submitVulnerability(vulnerability: Omit<Vulnerability, 'id
   };
   
   const { data, error } = await supabase
-    .from('vulnerabilities')
+    .from(TABLE_NAME)
     .insert(dbVulnerability)
     .select()
     .single();
@@ -131,6 +134,10 @@ export async function submitVulnerability(vulnerability: Omit<Vulnerability, 'id
   if (error) {
     console.error('Error submitting vulnerability:', error);
     throw error;
+  }
+  
+  if (!data) {
+    throw new Error('No data returned from insertion');
   }
   
   return {
@@ -160,7 +167,7 @@ export async function calculateStatsFromDb(): Promise<{
   patchedCount: number;
 }> {
   const { data, error } = await supabase
-    .from('vulnerabilities')
+    .from(TABLE_NAME)
     .select('*');
 
   if (error) {
@@ -182,30 +189,36 @@ export async function calculateStatsFromDb(): Promise<{
       medium: 0,
       low: 0,
       info: 0
-    },
-    byBlockchain: {},
-    byAuditor: {},
+    } as Record<VulnerabilityLevel, number>,
+    byBlockchain: {} as Record<string, number>,
+    byAuditor: {} as Record<string, number>,
     recentCount: 0,
     patchedCount: 0
   };
 
-  vulnerabilities.forEach(vuln => {
+  vulnerabilities.forEach((vuln: DbVulnerability) => {
     // Count by severity
-    stats.bySeverity[vuln.severity as VulnerabilityLevel]++;
+    if (stats.bySeverity[vuln.severity as VulnerabilityLevel] !== undefined) {
+      stats.bySeverity[vuln.severity as VulnerabilityLevel]++;
+    }
 
     // Count by blockchain
-    vuln.blockchains.forEach(chain => {
-      if (!stats.byBlockchain[chain]) {
-        stats.byBlockchain[chain] = 0;
-      }
-      stats.byBlockchain[chain]++;
-    });
+    if (vuln.blockchains) {
+      vuln.blockchains.forEach(chain => {
+        if (!stats.byBlockchain[chain]) {
+          stats.byBlockchain[chain] = 0;
+        }
+        stats.byBlockchain[chain]++;
+      });
+    }
 
     // Count by auditor
-    if (!stats.byAuditor[vuln.auditor]) {
-      stats.byAuditor[vuln.auditor] = 0;
+    if (vuln.auditor) {
+      if (!stats.byAuditor[vuln.auditor]) {
+        stats.byAuditor[vuln.auditor] = 0;
+      }
+      stats.byAuditor[vuln.auditor]++;
     }
-    stats.byAuditor[vuln.auditor]++;
 
     // Count recent vulnerabilities
     const discoveryDate = new Date(vuln.discovery_date);
