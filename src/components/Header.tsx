@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Database, Search, Shield } from "lucide-react";
@@ -47,10 +46,6 @@ export function Header() {
             <Button variant="outline" size="sm" className="gap-1">
               <Search className="h-4 w-4" />
               <span className="sr-only sm:not-sr-only">Search</span>
-            </Button>
-            <Button variant="default" size="sm" className="gap-1 bg-blocksafe-teal text-blocksafe-dark hover:bg-blocksafe-teal/80">
-              <Database className="h-4 w-4" />
-              <span className="sr-only sm:not-sr-only">Connect</span>
             </Button>
           </div>
         </div>
