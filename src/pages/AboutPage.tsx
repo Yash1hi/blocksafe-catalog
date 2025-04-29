@@ -1,4 +1,3 @@
-
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,10 +14,10 @@ const AboutPage = () => {
             
             <div className="prose prose-invert max-w-none">
               <p className="text-muted-foreground mb-8 text-lg">
-                BlockSafe Catalog is a comprehensive, human-readable database of known vulnerabilities
-                and exploits in blockchain networks and smart contracts. Our mission is to provide
-                security researchers, developers, and organizations with centralized, accurate information
-                to improve the overall security of blockchain applications.
+                BlockSafe Catalog is a comprehensive database of blockchain vulnerabilities developed as a final project
+                for CSCI 4240: Introduction to Blockchain at the University of Colorado Boulder. Created by Yash Thapliyal
+                and Kelly McVeigh, undergraduate students in Computer Science, this project aims to provide a centralized
+                resource for understanding and learning about blockchain security vulnerabilities.
               </p>
               
               <div className="grid gap-6 mt-12 md:grid-cols-2">
@@ -26,15 +25,15 @@ const AboutPage = () => {
                   <CardHeader className="pb-2">
                     <CardTitle className="flex items-center text-lg">
                       <Shield className="h-5 w-5 mr-2 text-blocksafe-teal" />
-                      Our Mission
+                      Project Overview
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm">
-                      To create a trusted resource that documents and categorizes blockchain
-                      vulnerabilities, making security knowledge more accessible to the broader
-                      blockchain community. We believe that open information sharing is critical
-                      to preventing future exploits and improving ecosystem security.
+                      As part of our blockchain education journey, we developed BlockSafe Catalog to document
+                      and categorize known vulnerabilities in blockchain networks and smart contracts. This project
+                      serves as both a learning resource and a practical application of blockchain security concepts
+                      covered in CSCI 4240.
                     </p>
                   </CardContent>
                 </Card>
@@ -43,21 +42,20 @@ const AboutPage = () => {
                   <CardHeader className="pb-2">
                     <CardTitle className="flex items-center text-lg">
                       <AlertTriangle className="h-5 w-5 mr-2 text-blocksafe-warning" />
-                      Why It Matters
+                      Educational Value
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm">
-                      Billions of dollars have been lost to blockchain hacks and exploits.
-                      Many of these incidents leverage the same vulnerabilities repeatedly.
-                      By documenting these issues, we help developers avoid common pitfalls
-                      and encourage better security practices throughout the industry.
+                      Understanding blockchain vulnerabilities is crucial for developing secure applications.
+                      Through this project, we aim to help fellow students and developers learn from past
+                      security incidents and implement better security practices in their blockchain applications.
                     </p>
                   </CardContent>
                 </Card>
               </div>
               
-              <h2 className="text-2xl font-bold mt-12 mb-6">How It Works</h2>
+              <h2 className="text-2xl font-bold mt-12 mb-6">Project Features</h2>
               
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
@@ -65,11 +63,11 @@ const AboutPage = () => {
                     <Database className="h-5 w-5 text-blocksafe-teal" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium">Comprehensive Cataloging</h3>
+                    <h3 className="text-lg font-medium">Vulnerability Database</h3>
                     <p className="text-muted-foreground">
-                      We maintain detailed records of vulnerabilities, including severity ratings,
-                      discovery dates, affected blockchains, exploit techniques, and remediation strategies.
-                      Each entry is thoroughly researched and verified before publication.
+                      Our database includes detailed information about various blockchain vulnerabilities,
+                      including their severity, discovery dates, affected platforms, and potential mitigation
+                      strategies. Each entry is carefully researched and documented to serve as a learning resource.
                     </p>
                   </div>
                 </div>
@@ -79,11 +77,11 @@ const AboutPage = () => {
                     <Users className="h-5 w-5 text-blocksafe-teal" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium">Community Contributions</h3>
+                    <h3 className="text-lg font-medium">Academic Collaboration</h3>
                     <p className="text-muted-foreground">
-                      BlockSafe Catalog is a collaborative effort. Security researchers, auditors, and
-                      blockchain developers can submit new vulnerabilities or update existing entries.
-                      All submissions undergo a review process to ensure accuracy and completeness.
+                      This project was developed as a collaborative effort between two undergraduate students
+                      at CU Boulder, combining our knowledge of blockchain technology, security, and web development
+                      to create a valuable resource for the blockchain community.
                     </p>
                   </div>
                 </div>
@@ -92,10 +90,11 @@ const AboutPage = () => {
               <div className="border-t border-border my-12"></div>
               
               <div>
-                <h2 className="text-2xl font-bold mb-6">Contact Us</h2>
+                <h2 className="text-2xl font-bold mb-6">Contact</h2>
                 <p className="text-muted-foreground">
-                  Have questions, suggestions, or want to contribute to the BlockSafe Catalog?
-                  Reach out to us at <span className="text-blocksafe-teal">contact@blocksafe-catalog.com</span>
+                  For questions about this project or to learn more about our work, please reach out to us at
+                  <span className="text-blocksafe-teal"> yash.thapliyal@colorado.edu</span> or
+                  <span className="text-blocksafe-teal"> kelly.mcveigh@colorado.edu</span>
                 </p>
               </div>
             </div>
